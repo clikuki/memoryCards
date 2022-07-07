@@ -1,0 +1,17 @@
+{
+	"dependencies": {
+		"typescript": "^4.7.4"
+	},
+	"name": "memorypuzzle",
+	"version": "1.0.0",
+	"main": "main.js",
+	"devDependencies": {},
+	"scripts": {
+		"build": "tsc",
+		"watch": "tsc -W"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": ""
+}
