@@ -44,7 +44,6 @@ p {
 	position: absolute;
 	height: 100%;
 	width: 100%;
-	line-height: 300px;
 	text-align: center;
 	border-radius: 5px;
 	backface-visibility: hidden;
@@ -52,10 +51,6 @@ p {
 	place-content: center;
 	font-size: xx-large;
 	user-select: none;
-}
-.card .front > *,
-.card .back > * {
-	pointer-events: none;
 }
 .card .front {
 	background: white;
@@ -66,7 +61,6 @@ p {
 	color: white;
 	transform: rotateY(180deg);
 }
-
 .grid {
 	display: grid;
 	width: min-content;
