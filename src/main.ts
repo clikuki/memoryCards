@@ -52,6 +52,7 @@ restartBtn.classList.add('restartBtn');
 restartBtn.textContent = 'Restart';
 restartBtn.addEventListener('click', () => {
 	if (flipHandler !== null) clearTimeout(flipHandler);
+	resetFlipCount();
 	let flippedCount = 0;
 	let flippedNow = 0;
 	cards.forEach((card) => {
@@ -67,7 +68,18 @@ restartBtn.addEventListener('click', () => {
 		}
 	});
 });
-document.body.append(grid.container, restartBtn);
+
+const flipCounterElem = document.createElement('div');
+let flipCount = 0;
+flipCounterElem.textContent = 'Flips: 0';
+document.body.append(grid.container, flipCounterElem, restartBtn);
+function incrementFlipCount() {
+	flipCounterElem.textContent = `Flips: ${++flipCount}`;
+}
+function resetFlipCount() {
+	flipCount = 0;
+	flipCounterElem.textContent = 'Flips: 0';
+}
 
 let prevCard: Card | null = null;
 let disableFlip = false;
@@ -85,6 +97,7 @@ cards.forEach((card) =>
 					prevCard = null;
 					card.flip();
 				}, 1000);
+				incrementFlipCount();
 			} else {
 				prevCard = null;
 				if (cards.every((card) => card.isFlipped)) {

@@ -51,6 +51,7 @@ p {
 	display: grid;
 	place-content: center;
 	font-size: xx-large;
+	font-weight: bold;
 	user-select: none;
 }
 .card .front {
