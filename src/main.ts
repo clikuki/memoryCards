@@ -38,7 +38,7 @@ function doWinAnimation() {
 function changeCardSymbols() {
 	const symbols = getSymbols((rows * columns) / 2);
 	shuffle(cards).forEach((card, i) =>
-		card.changeSymbol(symbols[Math.floor(i / 2)]),
+		card.setSymbol(symbols[Math.floor(i / 2)]),
 	);
 }
 
@@ -51,7 +51,6 @@ const restartBtn = document.createElement('button');
 restartBtn.classList.add('restartBtn');
 restartBtn.textContent = 'Restart';
 restartBtn.addEventListener('click', () => {
-	if (flipHandler !== null) clearTimeout(flipHandler);
 	resetFlipCount();
 	let flippedCount = 0;
 	let flippedNow = 0;
@@ -83,25 +82,24 @@ function resetFlipCount() {
 
 let prevCard: Card | null = null;
 let disableFlip = false;
-let flipHandler: null | number = null;
 cards.forEach((card) =>
 	card.container.addEventListener('click', () => {
 		if (disableFlip || card.isFlipped) return;
-		card.flip();
+		const flipPromise = card.flip();
 		if (prevCard) {
+			incrementFlipCount();
 			if (prevCard.symbol !== card.symbol) {
 				disableFlip = true;
-				flipHandler = setTimeout(() => {
+				flipPromise.then(() => {
 					disableFlip = false;
 					prevCard!.flip();
 					prevCard = null;
 					card.flip();
-				}, 1000);
-				incrementFlipCount();
+				});
 			} else {
 				prevCard = null;
 				if (cards.every((card) => card.isFlipped)) {
-					setTimeout(doWinAnimation, 500);
+					flipPromise.then(doWinAnimation);
 				}
 			}
 		} else prevCard = card;

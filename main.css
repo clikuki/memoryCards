@@ -1,3 +1,9 @@
+/* CSS only flipping card by Eddy Sims from https://codepen.io/edeesims/pen/wvpYWW */
+:root {
+	--c-primary-500: #03446a;
+	--c-primary-600: #03314c;
+	--c-secondary-500: white;
+}
 *,
 *::before,
 *::after {
@@ -40,8 +46,8 @@ p {
 	transform: rotateY(180deg);
 	transition: transform 1s;
 }
-.card .front,
-.card .back {
+.card .content::after,
+.card .content::before {
 	position: absolute;
 	height: 100%;
 	width: 100%;
@@ -50,17 +56,22 @@ p {
 	backface-visibility: hidden;
 	display: grid;
 	place-content: center;
-	font-size: xx-large;
+	font-size: xxx-large;
 	font-weight: bold;
 	user-select: none;
+	transform-style: preserve-3d;
+	display: grid;
+	place-content: center;
 }
-.card .front {
-	background: white;
-	color: #03446a;
+.card .content::after {
+	content: '?';
+	background: var(--c-secondary-500);
+	color: var(--c-primary-500);
 }
-.card .back {
-	background: #03446a;
-	color: white;
+.card .content::before {
+	content: attr(data-symbol);
+	background: var(--c-primary-500);
+	color: var(--c-secondary-500);
 	transform: rotateY(180deg);
 }
 .grid {
@@ -73,7 +84,7 @@ p {
 .restartBtn {
 	margin-top: 1rem;
 	border: none;
-	background-color: #03446a;
+	background-color: var(--c-primary-500);
 	color: white;
 	font-size: x-large;
 	padding: 0.5rem 2rem 0.5rem 2rem;
@@ -81,5 +92,5 @@ p {
 	cursor: pointer;
 }
 .restartBtn:hover {
-	background-color: #03314c;
+	background-color: var(--c-primary-600);
 }

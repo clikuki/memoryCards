@@ -1,19 +1,13 @@
+/* CSS only flipping card by Eddy Sims from https://codepen.io/edeesims/pen/wvpYWW */
 export class Card {
 	container = document.createElement('div');
 	content = document.createElement('div');
-	front = document.createElement('div');
-	back = document.createElement('div');
 	isFlipped = false;
-	symbol: string;
+	symbol = '';
 	constructor(symbol: string) {
+		this.setSymbol(symbol);
 		this.container.classList.add('card');
 		this.content.classList.add('content');
-		this.front.classList.add('front');
-		this.back.classList.add('back');
-		this.front.textContent = '?';
-		this.back.textContent = symbol;
-		this.symbol = symbol;
-		this.content.append(this.front, this.back);
 		this.container.appendChild(this.content);
 	}
 	flip() {
@@ -25,8 +19,8 @@ export class Card {
 			});
 		});
 	}
-	changeSymbol(symbol: string) {
+	setSymbol(symbol: string) {
 		this.symbol = symbol;
-		this.back.textContent = symbol;
+		this.content.setAttribute('data-symbol', symbol);
 	}
 }

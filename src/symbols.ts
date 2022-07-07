@@ -86,7 +86,9 @@ export function getSymbols(count: number) {
 	const copy = symbols.slice();
 	const randomSymbols = [];
 	while (randomSymbols.length < count) {
-		randomSymbols.push(copy[Math.floor(Math.random() * symbols.length)]);
+		const index = Math.floor(Math.random() * copy.length);
+		const [symbol] = copy.splice(index, 1);
+		randomSymbols.push(symbol);
 	}
 	return randomSymbols;
 }
