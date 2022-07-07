@@ -69,3 +69,16 @@ p {
 	grid-template-columns: repeat(var(--columns, 1), 1fr);
 	grid-template-rows: repeat(var(--rows, 1), 1fr);
 }
+.restartBtn {
+	margin-top: 1rem;
+	border: none;
+	background-color: #03446a;
+	color: white;
+	font-size: x-large;
+	padding: 0.5rem 2rem 0.5rem 2rem;
+	border-radius: 5px;
+	cursor: pointer;
+}
+.restartBtn:hover {
+	background-color: #03314c;
+}

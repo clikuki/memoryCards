@@ -17,7 +17,16 @@ export class Card {
 		this.container.appendChild(this.content);
 	}
 	flip() {
-		this.container.classList.toggle('flipped');
-		this.isFlipped = !this.isFlipped;
+		return new Promise<void>((rec) => {
+			this.container.classList.toggle('flipped');
+			this.isFlipped = !this.isFlipped;
+			this.container.addEventListener('transitionend', () => rec(), {
+				once: true,
+			});
+		});
+	}
+	changeSymbol(symbol: string) {
+		this.symbol = symbol;
+		this.back.textContent = symbol;
 	}
 }
