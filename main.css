@@ -65,8 +65,7 @@ p {
 	place-content: center;
 }
 .card .content::after {
-	/* content: '?'; */
-	content: attr(data-symbol);
+	content: '?';
 	background: var(--c-secondary-500);
 	color: var(--c-primary-500);
 }

@@ -44,7 +44,7 @@ function changeCardSymbols() {
 }
 
 const rows = 3;
-const columns = 4;
+const columns = 10;
 let cards = shuffle(getCards());
 const grid = new Grid(columns, rows, cards);
 
