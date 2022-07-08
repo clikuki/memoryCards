@@ -43,15 +43,23 @@ function changeCardSymbols() {
 	);
 }
 
-const rows = 3;
-const columns = 10;
+const rows = 2;
+const columns = 2;
 let cards = shuffle(getCards());
 const grid = new Grid(columns, rows, cards);
+let gameId = 0;
 
+const btnContainer = document.createElement('div');
+btnContainer.classList.add('btn-container');
 const restartBtn = document.createElement('button');
 restartBtn.textContent = 'Restart';
 restartBtn.addEventListener('click', () => {
+	gameId++;
 	resetFlipCount();
+	if (aiObj) {
+		aiObj.cancel();
+		aiObj = null;
+	}
 	let flippedCount = 0;
 	let flippedNow = 0;
 	cards.forEach((card) => {
@@ -61,6 +69,7 @@ restartBtn.addEventListener('click', () => {
 				if (++flippedNow >= flippedCount) {
 					changeCardSymbols();
 					disableFlip = false;
+					isSolved = false;
 					prevCard = null;
 				}
 			});
@@ -68,10 +77,28 @@ restartBtn.addEventListener('click', () => {
 	});
 });
 
+let isSolving = false;
+let isSolved = false;
+let aiObj: ReturnType<typeof ai> | null = null;
+const solveBtn = document.createElement('button');
+solveBtn.textContent = 'Solve';
+solveBtn.addEventListener('click', () => {
+	if (isSolving || isSolved) return;
+	isSolving = true;
+	aiObj = ai(cards);
+	aiObj.promise
+		.then(() => {
+			isSolved = true;
+		})
+		.finally(() => {
+			aiObj = null;
+			isSolving = false;
+		});
+});
+
 const flipCounterElem = document.createElement('div');
 let flipCount = 0;
 flipCounterElem.textContent = 'Flips: 0';
-document.body.append(grid.container, flipCounterElem, restartBtn);
 function incrementFlipCount() {
 	flipCounterElem.textContent = `Flips: ${++flipCount}`;
 }
@@ -79,18 +106,22 @@ function resetFlipCount() {
 	flipCount = 0;
 	flipCounterElem.textContent = 'Flips: 0';
 }
+btnContainer.append(restartBtn, solveBtn);
+document.body.append(grid.container, flipCounterElem, btnContainer);
 
 let prevCard: Card | null = null;
 let disableFlip = false;
 cards.forEach((card) =>
-	card.container.addEventListener('click', () => {
-		if (disableFlip || card.isFlipped) return;
+	card.container.addEventListener('click', (e) => {
+		if (disableFlip || (isSolving && e.isTrusted) || card.isFlipped) return;
+		let currentId = gameId;
 		const flipPromise = card.flip();
 		if (prevCard) {
 			incrementFlipCount();
 			if (prevCard.symbol !== card.symbol) {
 				disableFlip = true;
 				flipPromise.then(() => {
+					if (currentId !== gameId) return;
 					disableFlip = false;
 					prevCard!.flip();
 					prevCard = null;
@@ -105,5 +136,3 @@ cards.forEach((card) =>
 		} else prevCard = card;
 	}),
 );
-
-ai(cards);

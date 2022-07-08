@@ -95,3 +95,8 @@ button {
 button:hover {
 	background-color: var(--c-primary-600);
 }
+.btn-container {
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+}
