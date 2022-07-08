@@ -1,7 +1,7 @@
 import { getSymbols } from './symbols.js';
 import { Card } from './card.js';
 import { Grid } from './grid.js';
-import { ai } from './ai.js';
+import { solve } from './solve.js';
 
 function shuffle<T>(arr: T[]): T[] {
 	const shuffled = [];
@@ -56,9 +56,9 @@ restartBtn.textContent = 'Restart';
 restartBtn.addEventListener('click', () => {
 	gameId++;
 	resetFlipCount();
-	if (aiObj) {
-		aiObj.cancel();
-		aiObj = null;
+	if (solveObj) {
+		solveObj.cancel();
+		solveObj = null;
 	}
 	let flippedCount = 0;
 	let flippedNow = 0;
@@ -79,19 +79,19 @@ restartBtn.addEventListener('click', () => {
 
 let isSolving = false;
 let isSolved = false;
-let aiObj: ReturnType<typeof ai> | null = null;
+let solveObj: ReturnType<typeof solve> | null = null;
 const solveBtn = document.createElement('button');
 solveBtn.textContent = 'Solve';
 solveBtn.addEventListener('click', () => {
 	if (isSolving || isSolved) return;
 	isSolving = true;
-	aiObj = ai(cards);
-	aiObj.promise
+	solveObj = solve(cards);
+	solveObj.promise
 		.then(() => {
 			isSolved = true;
 		})
 		.finally(() => {
-			aiObj = null;
+			solveObj = null;
 			isSolving = false;
 		});
 });

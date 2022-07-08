@@ -4,7 +4,7 @@ interface Memory {
 	[key: string]: [number, number?];
 }
 
-export function ai(cards: Card[]) {
+export function solve(cards: Card[]) {
 	let cancel = false;
 	const obj = {
 		cancel: () => (cancel = true),
@@ -13,6 +13,23 @@ export function ai(cards: Card[]) {
 			const flippedIndices: Set<number> = new Set();
 			const matchedIndices: Set<number> = new Set();
 			let prevCardIndex: number | null = null;
+
+			// Initialize values
+			cards.forEach((card, i) => {
+				if (!card.isFlipped) return;
+				flippedIndices.add(i);
+				const symbol = card.symbol;
+				if (!memory[symbol]) memory[symbol] = [i];
+				else {
+					matchedIndices.add(i);
+					matchedIndices.add(memory[symbol][0]);
+					delete memory[symbol];
+				}
+			});
+			Object.entries(memory).forEach(
+				([, [index]]) => (prevCardIndex = index),
+			);
+
 			function allCardsAreFlipped() {
 				return matchedIndices.size === cards.length;
 			}
