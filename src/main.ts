@@ -1,6 +1,7 @@
 import { getSymbols } from './symbols.js';
 import { Card } from './card.js';
 import { Grid } from './grid.js';
+import { ai } from './ai.js';
 
 function shuffle<T>(arr: T[]): T[] {
 	const shuffled = [];
@@ -43,12 +44,11 @@ function changeCardSymbols() {
 }
 
 const rows = 3;
-const columns = 10;
+const columns = 4;
 let cards = shuffle(getCards());
 const grid = new Grid(columns, rows, cards);
 
 const restartBtn = document.createElement('button');
-restartBtn.classList.add('restartBtn');
 restartBtn.textContent = 'Restart';
 restartBtn.addEventListener('click', () => {
 	resetFlipCount();
@@ -105,3 +105,5 @@ cards.forEach((card) =>
 		} else prevCard = card;
 	}),
 );
+
+ai(cards);

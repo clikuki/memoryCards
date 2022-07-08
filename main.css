@@ -16,6 +16,7 @@ body {
 	align-items: center;
 	min-height: 100%;
 	margin: 0;
+	padding: 0 1rem 0 1rem;
 	font-family: system-ui;
 }
 h1 {
@@ -64,7 +65,8 @@ p {
 	place-content: center;
 }
 .card .content::after {
-	content: '?';
+	/* content: '?'; */
+	content: attr(data-symbol);
 	background: var(--c-secondary-500);
 	color: var(--c-primary-500);
 }
@@ -81,7 +83,7 @@ p {
 	grid-template-columns: repeat(var(--columns, 1), 1fr);
 	grid-template-rows: repeat(var(--rows, 1), 1fr);
 }
-.restartBtn {
+button {
 	margin-top: 1rem;
 	border: none;
 	background-color: var(--c-primary-500);
@@ -91,6 +93,6 @@ p {
 	border-radius: 5px;
 	cursor: pointer;
 }
-.restartBtn:hover {
+button:hover {
 	background-color: var(--c-primary-600);
 }
