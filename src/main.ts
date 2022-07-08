@@ -22,18 +22,18 @@ function getCards() {
 
 function doWinAnimation() {
 	disableFlip = true;
-	function wave() {
+	let count = 2;
+	(function wave() {
 		cards.forEach((card, i) => {
 			setTimeout(() => {
-				card.flip();
-				if (i === cards.length - 1) {
-					disableFlip = false;
-				}
+				card.flip().then(() => {
+					if (i !== 0) return;
+					if (--count <= 0) disableFlip = false;
+					else wave();
+				});
 			}, (Math.floor(i / columns) + (i % columns)) * 150);
 		});
-	}
-	wave();
-	setTimeout(wave, Math.floor(columns - 1) + (columns - 1) * 150);
+	})();
 }
 
 function changeCardSymbols() {
@@ -43,8 +43,8 @@ function changeCardSymbols() {
 	);
 }
 
-const rows = 2;
-const columns = 2;
+const rows = 3;
+const columns = 10;
 let cards = shuffle(getCards());
 const grid = new Grid(columns, rows, cards);
 let gameId = 0;
