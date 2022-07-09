@@ -49,10 +49,7 @@ let cards = shuffle(getCards());
 const grid = new Grid(columns, rows, cards);
 let gameId = 0;
 
-const btnContainer = document.createElement('div');
-btnContainer.classList.add('btn-container');
-const restartBtn = document.createElement('button');
-restartBtn.textContent = 'Restart';
+const restartBtn = document.querySelector('.restartBtn') as HTMLButtonElement;
 restartBtn.addEventListener('click', () => {
 	gameId++;
 	resetFlipCount();
@@ -82,7 +79,7 @@ restartBtn.addEventListener('click', () => {
 let isSolving = false;
 let isSolved = false;
 let solveObj: ReturnType<typeof solve> | null = null;
-const solveBtn = document.createElement('button');
+const solveBtn = document.querySelector('.solveBtn') as HTMLButtonElement;
 solveBtn.textContent = 'Solve';
 solveBtn.addEventListener('click', () => {
 	if (isSolving || isSolved) return;
@@ -101,8 +98,10 @@ solveBtn.addEventListener('click', () => {
 		});
 });
 
-const flipCounterElem = document.createElement('div');
 let flipCount = 0;
+const flipCounterElem = document.querySelector(
+	'.flipCounter',
+) as HTMLParagraphElement;
 flipCounterElem.textContent = 'Flips: 0';
 function incrementFlipCount() {
 	flipCounterElem.textContent = `Flips: ${++flipCount}`;
@@ -111,8 +110,7 @@ function resetFlipCount() {
 	flipCount = 0;
 	flipCounterElem.textContent = 'Flips: 0';
 }
-btnContainer.append(restartBtn, solveBtn);
-document.body.append(grid.container, flipCounterElem, btnContainer);
+document.body.replaceChild(grid.container, document.querySelector('.tmp')!);
 
 let prevCard: Card | null = null;
 let disableFlip = false;
