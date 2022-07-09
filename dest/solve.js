@@ -1,0 +1,93 @@
+export function solve(cards) {
+    let cancel = false;
+    const obj = {
+        cancel: () => (cancel = true),
+        promise: new Promise((res, rej) => {
+            const memory = {};
+            const flippedIndices = new Set();
+            const matchedIndices = new Set();
+            let prevCardIndex = null;
+            cards.forEach((card, i) => {
+                if (!card.isFlipped)
+                    return;
+                flippedIndices.add(i);
+                const symbol = card.symbol;
+                if (!memory[symbol])
+                    memory[symbol] = [i];
+                else {
+                    matchedIndices.add(i);
+                    matchedIndices.add(memory[symbol][0]);
+                    delete memory[symbol];
+                }
+            });
+            switch (Object.keys(memory).length) {
+                case 2:
+                    const card = cards[Object.values(memory)[0][0]];
+                    card.container.addEventListener('transitionend', () => {
+                        if (card.isFlipped)
+                            card.container.addEventListener('transitionend', flip, { once: true });
+                        else
+                            flip();
+                    }, {
+                        once: true,
+                    });
+                    break;
+                case 1:
+                    Object.values(memory).forEach(([index]) => (prevCardIndex = index));
+                case 0:
+                default:
+                    flip();
+                    break;
+            }
+            function allCardsAreFlipped() {
+                return matchedIndices.size === cards.length;
+            }
+            function getCardIndex() {
+                for (const key in memory) {
+                    const [indexA, indexB] = memory[key];
+                    if (typeof indexB === 'number') {
+                        return cards[indexA].isFlipped ? indexB : indexA;
+                    }
+                }
+                const indices = cards
+                    .map((_, i) => i)
+                    .filter((i) => !matchedIndices.has(i) && !flippedIndices.has(i));
+                const index = indices[Math.floor(Math.random() * indices.length)];
+                return index;
+            }
+            function flip() {
+                if (cancel) {
+                    rej('canceled');
+                    return;
+                }
+                const index = getCardIndex();
+                const card = cards[index];
+                card.container.click();
+                card.container.addEventListener('transitionend', () => {
+                    flippedIndices.add(index);
+                    const symbol = card.symbol;
+                    if (!memory[symbol])
+                        memory[symbol] = [index];
+                    else if (memory[symbol].length === 1)
+                        memory[symbol][1] = index;
+                    if (prevCardIndex !== null) {
+                        if (cards[prevCardIndex].symbol === card.symbol) {
+                            matchedIndices.add(prevCardIndex);
+                            matchedIndices.add(index);
+                            delete memory[symbol];
+                        }
+                        prevCardIndex = null;
+                    }
+                    else
+                        prevCardIndex = index;
+                    if (allCardsAreFlipped())
+                        res();
+                    else
+                        flip();
+                }, { once: true });
+            }
+        }),
+    };
+    return obj;
+}
+//# sourceMappingURL=solve.js.map
