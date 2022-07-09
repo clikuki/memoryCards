@@ -104,3 +104,6 @@ button:disabled {
 	gap: 1rem;
 	justify-content: center;
 }
+a {
+	color: inherit;
+}
