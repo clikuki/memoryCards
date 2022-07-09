@@ -2,6 +2,7 @@
 :root {
 	--c-primary-500: #03446a;
 	--c-primary-600: #03314c;
+	--c-primary-700: #031723;
 	--c-secondary-500: white;
 }
 *,
@@ -94,6 +95,9 @@ button {
 }
 button:hover {
 	background-color: var(--c-primary-600);
+}
+button:disabled {
+	background-color: var(--c-primary-700);
 }
 .btn-container {
 	display: flex;

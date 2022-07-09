@@ -26,9 +26,35 @@ export function solve(cards: Card[]) {
 					delete memory[symbol];
 				}
 			});
-			Object.entries(memory).forEach(
-				([, [index]]) => (prevCardIndex = index),
-			);
+			// only two cards can be flipped and non-matching at most
+			switch (Object.keys(memory).length) {
+				case 2:
+					const card = cards[Object.values(memory)[0][0]];
+					card.container.addEventListener(
+						'transitionend',
+						() => {
+							if (card.isFlipped)
+								card.container.addEventListener(
+									'transitionend',
+									flip,
+									{ once: true },
+								);
+							else flip();
+						},
+						{
+							once: true,
+						},
+					);
+					break;
+				case 1:
+					Object.values(memory).forEach(
+						([index]) => (prevCardIndex = index),
+					);
+				case 0:
+				default:
+					flip();
+					break;
+			}
 
 			function allCardsAreFlipped() {
 				return matchedIndices.size === cards.length;
@@ -50,7 +76,7 @@ export function solve(cards: Card[]) {
 					indices[Math.floor(Math.random() * indices.length)];
 				return index;
 			}
-			(function flip() {
+			function flip() {
 				if (cancel) {
 					rej('canceled');
 					return;
@@ -79,7 +105,7 @@ export function solve(cards: Card[]) {
 					},
 					{ once: true },
 				);
-			})();
+			}
 		}),
 	};
 	return obj;

@@ -60,6 +60,8 @@ restartBtn.addEventListener('click', () => {
 		solveObj.cancel();
 		solveObj = null;
 	}
+	solveBtn.textContent = 'Solve';
+	solveBtn.disabled = false;
 	let flippedCount = 0;
 	let flippedNow = 0;
 	cards.forEach((card) => {
@@ -85,6 +87,8 @@ solveBtn.textContent = 'Solve';
 solveBtn.addEventListener('click', () => {
 	if (isSolving || isSolved) return;
 	isSolving = true;
+	solveBtn.disabled = true;
+	solveBtn.textContent = 'Solving...';
 	solveObj = solve(cards);
 	solveObj.promise
 		.then(() => {
@@ -93,6 +97,7 @@ solveBtn.addEventListener('click', () => {
 		.finally(() => {
 			solveObj = null;
 			isSolving = false;
+			solveBtn.textContent = 'Solved';
 		});
 });
 
