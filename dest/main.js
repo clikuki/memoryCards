@@ -37,10 +37,13 @@ function changeCardSymbols() {
     const symbols = getSymbols((rows * columns) / 2);
     shuffle(cards).forEach((card, i) => card.setSymbol(symbols[Math.floor(i / 2)]));
 }
+const columnSets = [6, 8, 12];
+const dificultText = ['Easy', 'Normal', 'Hard'];
+let difficultyIndex = 0;
 const rows = 3;
-const columns = 10;
+let columns = columnSets[difficultyIndex];
 let cards = shuffle(getCards());
-const grid = new Grid(columns, rows, cards);
+let grid = new Grid(columns, rows, cards);
 let gameId = 0;
 const restartBtn = document.querySelector('.restartBtn');
 restartBtn.addEventListener('click', () => {
@@ -50,8 +53,6 @@ restartBtn.addEventListener('click', () => {
         solveObj.cancel();
         solveObj = null;
     }
-    solveBtn.textContent = 'Solve';
-    solveBtn.disabled = false;
     let flippedCount = 0;
     let flippedNow = 0;
     cards.forEach((card) => {
@@ -83,12 +84,36 @@ solveBtn.addEventListener('click', () => {
     solveObj.promise
         .then(() => {
         isSolved = true;
+        solveBtn.textContent = 'Solved';
+    })
+        .catch(() => {
+        solveBtn.textContent = 'Solve';
     })
         .finally(() => {
         solveObj = null;
         isSolving = false;
-        solveBtn.textContent = 'Solved';
+        solveBtn.disabled = false;
     });
+});
+const difficultyBtn = document.querySelector('.difficultyBtn');
+difficultyBtn.textContent = dificultText[difficultyIndex];
+difficultyBtn.addEventListener('click', () => {
+    difficultyIndex = ++difficultyIndex % dificultText.length;
+    difficultyBtn.textContent = dificultText[difficultyIndex];
+    columns = columnSets[difficultyIndex];
+    cards = shuffle(getCards());
+    cards.forEach((card) => card.container.addEventListener('click', (e) => lifecycle(card, e)));
+    const newGrid = new Grid(columns, rows, cards);
+    grid.container.replaceWith(newGrid.container);
+    grid = newGrid;
+    gameId++;
+    if (solveObj) {
+        solveObj.cancel();
+        solveObj = null;
+    }
+    isSolved = false;
+    prevCard = null;
+    disableFlip = false;
 });
 let flipCount = 0;
 const flipCounterElem = document.querySelector('.flipCounter');
@@ -103,7 +128,7 @@ function resetFlipCount() {
 document.body.replaceChild(grid.container, document.querySelector('.tmp'));
 let prevCard = null;
 let disableFlip = false;
-cards.forEach((card) => card.container.addEventListener('click', (e) => {
+function lifecycle(card, e) {
     if (disableFlip || (isSolving && e.isTrusted) || card.isFlipped)
         return;
     let currentId = gameId;
@@ -130,5 +155,6 @@ cards.forEach((card) => card.container.addEventListener('click', (e) => {
     }
     else
         prevCard = card;
-}));
+}
+cards.forEach((card) => card.container.addEventListener('click', (e) => lifecycle(card, e)));
 //# sourceMappingURL=main.js.map

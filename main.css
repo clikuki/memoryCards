@@ -99,7 +99,7 @@ button:hover {
 button:disabled {
 	background-color: var(--c-primary-700);
 }
-.btn-container {
+.btnContainer {
 	display: flex;
 	gap: 1rem;
 	justify-content: center;

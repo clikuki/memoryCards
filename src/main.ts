@@ -43,10 +43,14 @@ function changeCardSymbols() {
 	);
 }
 
+const columnSets = [6, 8, 12];
+const dificultText = ['Easy', 'Normal', 'Hard'];
+let difficultyIndex = 0;
+
 const rows = 3;
-const columns = 10;
+let columns = columnSets[difficultyIndex];
 let cards = shuffle(getCards());
-const grid = new Grid(columns, rows, cards);
+let grid = new Grid(columns, rows, cards);
 let gameId = 0;
 
 const restartBtn = document.querySelector('.restartBtn') as HTMLButtonElement;
@@ -57,8 +61,6 @@ restartBtn.addEventListener('click', () => {
 		solveObj.cancel();
 		solveObj = null;
 	}
-	solveBtn.textContent = 'Solve';
-	solveBtn.disabled = false;
 	let flippedCount = 0;
 	let flippedNow = 0;
 	cards.forEach((card) => {
@@ -90,12 +92,41 @@ solveBtn.addEventListener('click', () => {
 	solveObj.promise
 		.then(() => {
 			isSolved = true;
+			solveBtn.textContent = 'Solved';
+		})
+		.catch(() => {
+			solveBtn.textContent = 'Solve';
 		})
 		.finally(() => {
 			solveObj = null;
 			isSolving = false;
-			solveBtn.textContent = 'Solved';
+			solveBtn.disabled = false;
 		});
+});
+
+const difficultyBtn = document.querySelector(
+	'.difficultyBtn',
+) as HTMLButtonElement;
+difficultyBtn.textContent = dificultText[difficultyIndex];
+difficultyBtn.addEventListener('click', () => {
+	difficultyIndex = ++difficultyIndex % dificultText.length;
+	difficultyBtn.textContent = dificultText[difficultyIndex];
+	columns = columnSets[difficultyIndex];
+	cards = shuffle(getCards());
+	cards.forEach((card) =>
+		card.container.addEventListener('click', (e) => lifecycle(card, e)),
+	);
+	const newGrid = new Grid(columns, rows, cards);
+	grid.container.replaceWith(newGrid.container);
+	grid = newGrid;
+	gameId++;
+	if (solveObj) {
+		solveObj.cancel();
+		solveObj = null;
+	}
+	isSolved = false;
+	prevCard = null;
+	disableFlip = false;
 });
 
 let flipCount = 0;
@@ -114,28 +145,29 @@ document.body.replaceChild(grid.container, document.querySelector('.tmp')!);
 
 let prevCard: Card | null = null;
 let disableFlip = false;
-cards.forEach((card) =>
-	card.container.addEventListener('click', (e) => {
-		if (disableFlip || (isSolving && e.isTrusted) || card.isFlipped) return;
-		let currentId = gameId;
-		const flipPromise = card.flip();
-		if (prevCard) {
-			incrementFlipCount();
-			if (prevCard.symbol !== card.symbol) {
-				disableFlip = true;
-				flipPromise.then(() => {
-					if (currentId !== gameId) return;
-					disableFlip = false;
-					prevCard!.flip();
-					prevCard = null;
-					card.flip();
-				});
-			} else {
+function lifecycle(card: Card, e: MouseEvent) {
+	if (disableFlip || (isSolving && e.isTrusted) || card.isFlipped) return;
+	let currentId = gameId;
+	const flipPromise = card.flip();
+	if (prevCard) {
+		incrementFlipCount();
+		if (prevCard.symbol !== card.symbol) {
+			disableFlip = true;
+			flipPromise.then(() => {
+				if (currentId !== gameId) return;
+				disableFlip = false;
+				prevCard!.flip();
 				prevCard = null;
-				if (cards.every((card) => card.isFlipped)) {
-					flipPromise.then(doWinAnimation);
-				}
+				card.flip();
+			});
+		} else {
+			prevCard = null;
+			if (cards.every((card) => card.isFlipped)) {
+				flipPromise.then(doWinAnimation);
 			}
-		} else prevCard = card;
-	}),
+		}
+	} else prevCard = card;
+}
+cards.forEach((card) =>
+	card.container.addEventListener('click', (e) => lifecycle(card, e)),
 );
