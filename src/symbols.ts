@@ -1,4 +1,5 @@
-export const symbols = [
+// https://www.vertex42.com/ExcelTips/unicode-symbols.html
+const symbols = [
 	'■',
 	'□',
 	'▣',
@@ -48,8 +49,6 @@ export const symbols = [
 	'◕',
 	'◖',
 	'◗',
-	'◘',
-	'◙',
 	'◜',
 	'◝',
 	'◞',
@@ -82,6 +81,8 @@ export const symbols = [
 	'◺',
 	'◿',
 ];
+
+// Normal game won't use all symbols, so randomize to add some variety
 export function getSymbols(count: number) {
 	const copy = symbols.slice();
 	const randomSymbols = [];

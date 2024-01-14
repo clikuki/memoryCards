@@ -1,9 +1,9 @@
-export function solve(cards) {
+export function Solver(cards) {
     let cancel = false;
     const obj = {
         cancel: () => (cancel = true),
         promise: new Promise((res, rej) => {
-            const memory = {};
+            const memory = new Map();
             const flippedIndices = new Set();
             const matchedIndices = new Set();
             let prevCardIndex = null;
@@ -12,12 +12,12 @@ export function solve(cards) {
                     return;
                 flippedIndices.add(i);
                 const symbol = card.symbol;
-                if (!memory[symbol])
-                    memory[symbol] = [i];
+                if (!memory.has(symbol))
+                    memory.set(symbol, [i]);
                 else {
                     matchedIndices.add(i);
-                    matchedIndices.add(memory[symbol][0]);
-                    delete memory[symbol];
+                    matchedIndices.add(memory.get(symbol)[0]);
+                    memory.delete(symbol);
                 }
             });
             switch (Object.keys(memory).length) {
@@ -25,9 +25,11 @@ export function solve(cards) {
                     const card = cards[Object.values(memory)[0][0]];
                     card.container.addEventListener('transitionend', () => {
                         if (card.isFlipped)
-                            card.container.addEventListener('transitionend', flip, { once: true });
+                            card.container.addEventListener('transitionend', flipCard, {
+                                once: true,
+                            });
                         else
-                            flip();
+                            flipCard();
                     }, {
                         once: true,
                     });
@@ -36,16 +38,12 @@ export function solve(cards) {
                     Object.values(memory).forEach(([index]) => (prevCardIndex = index));
                 case 0:
                 default:
-                    flip();
+                    flipCard();
                     break;
             }
-            function allCardsAreFlipped() {
-                return matchedIndices.size === cards.length;
-            }
             function getCardIndex() {
-                for (const key in memory) {
-                    const [indexA, indexB] = memory[key];
-                    if (typeof indexB === 'number') {
+                for (const [, [indexA, indexB]] of memory) {
+                    if (indexB !== undefined) {
                         return cards[indexA].isFlipped ? indexB : indexA;
                     }
                 }
@@ -55,7 +53,7 @@ export function solve(cards) {
                 const index = indices[Math.floor(Math.random() * indices.length)];
                 return index;
             }
-            function flip() {
+            function flipCard() {
                 if (cancel) {
                     rej('canceled');
                     return;
@@ -66,24 +64,27 @@ export function solve(cards) {
                 card.container.addEventListener('transitionend', () => {
                     flippedIndices.add(index);
                     const symbol = card.symbol;
-                    if (!memory[symbol])
-                        memory[symbol] = [index];
-                    else if (memory[symbol].length === 1)
-                        memory[symbol][1] = index;
-                    if (prevCardIndex !== null) {
-                        if (cards[prevCardIndex].symbol === card.symbol) {
-                            matchedIndices.add(prevCardIndex);
-                            matchedIndices.add(index);
-                            delete memory[symbol];
+                    if (!memory.has(symbol))
+                        memory.set(symbol, [index]);
+                    else {
+                        const entry = memory.get(symbol);
+                        if (entry.length === 1)
+                            memory.get(symbol)[1] = index;
+                        if (prevCardIndex === null)
+                            prevCardIndex = index;
+                        else {
+                            if (cards[prevCardIndex].symbol === card.symbol) {
+                                matchedIndices.add(prevCardIndex);
+                                matchedIndices.add(index);
+                                memory.delete(symbol);
+                            }
+                            prevCardIndex = null;
                         }
-                        prevCardIndex = null;
                     }
-                    else
-                        prevCardIndex = index;
-                    if (allCardsAreFlipped())
+                    if (matchedIndices.size === cards.length)
                         res();
                     else
-                        flip();
+                        flipCard();
                 }, { once: true });
             }
         }),

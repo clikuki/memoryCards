@@ -1,15 +1,13 @@
 import { getSymbols } from './symbols.js';
 import { Card } from './card.js';
 import { Grid } from './grid.js';
-import { solve } from './solve.js';
+import { Solver } from './solve.js';
 
 function shuffle<T>(arr: T[]): T[] {
 	const shuffled = [];
 	const copy = arr.slice();
 	while (copy.length) {
-		shuffled.push(
-			...copy.splice(Math.floor(Math.random() * copy.length), 1),
-		);
+		shuffled.push(...copy.splice(Math.floor(Math.random() * copy.length), 1));
 	}
 	return shuffled;
 }
@@ -57,9 +55,9 @@ const restartBtn = document.querySelector('.restartBtn') as HTMLButtonElement;
 restartBtn.addEventListener('click', () => {
 	gameId++;
 	resetFlipCount();
-	if (solveObj) {
-		solveObj.cancel();
-		solveObj = null;
+	if (solver) {
+		solver.cancel();
+		solver = null;
 	}
 	let flippedCount = 0;
 	let flippedNow = 0;
@@ -80,7 +78,7 @@ restartBtn.addEventListener('click', () => {
 
 let isSolving = false;
 let isSolved = false;
-let solveObj: ReturnType<typeof solve> | null = null;
+let solver: ReturnType<typeof Solver> | null = null;
 const solveBtn = document.querySelector('.solveBtn') as HTMLButtonElement;
 solveBtn.textContent = 'Solve';
 solveBtn.addEventListener('click', () => {
@@ -88,8 +86,8 @@ solveBtn.addEventListener('click', () => {
 	isSolving = true;
 	solveBtn.disabled = true;
 	solveBtn.textContent = 'Solving...';
-	solveObj = solve(cards);
-	solveObj.promise
+	solver = Solver(cards);
+	solver.promise
 		.then(() => {
 			isSolved = true;
 			solveBtn.textContent = 'Solved';
@@ -98,7 +96,7 @@ solveBtn.addEventListener('click', () => {
 			solveBtn.textContent = 'Solve';
 		})
 		.finally(() => {
-			solveObj = null;
+			solver = null;
 			isSolving = false;
 			solveBtn.disabled = false;
 		});
@@ -120,9 +118,9 @@ difficultyBtn.addEventListener('click', () => {
 	grid.container.replaceWith(newGrid.container);
 	grid = newGrid;
 	gameId++;
-	if (solveObj) {
-		solveObj.cancel();
-		solveObj = null;
+	if (solver) {
+		solver.cancel();
+		solver = null;
 	}
 	isSolved = false;
 	prevCard = null;

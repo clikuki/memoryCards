@@ -1,4 +1,4 @@
-export const symbols = [
+const symbols = [
     '■',
     '□',
     '▣',
@@ -48,8 +48,6 @@ export const symbols = [
     '◕',
     '◖',
     '◗',
-    '◘',
-    '◙',
     '◜',
     '◝',
     '◞',
