@@ -1,10 +1,13 @@
 import { Card } from './card';
 
 // Returns an object with a promise and a method to cancel said promise
+// TODO: Fix it cause its broken somehow
 export function Solver(cards: Card[]) {
 	let cancel = false;
+	let state: 'IN PROGRESS' | 'SUCCESS' | 'FAILURE' = 'IN PROGRESS';
 	const obj = {
 		cancel: () => (cancel = true),
+		state: () => state,
 		promise: new Promise<void>((res, rej) => {
 			const memory = new Map<string, [number, number?]>();
 			const flippedIndices: Set<number> = new Set();
@@ -66,6 +69,7 @@ export function Solver(cards: Card[]) {
 
 			function flipCard() {
 				if (cancel) {
+					state = 'FAILURE';
 					rej('canceled');
 					return;
 				}
@@ -97,8 +101,11 @@ export function Solver(cards: Card[]) {
 							}
 						}
 
-						if (matchedIndices.size === cards.length) res();
-						else flipCard();
+						// Have all cards been matched?
+						if (matchedIndices.size === cards.length) {
+							state = 'SUCCESS';
+							res();
+						} else flipCard();
 					},
 					{ once: true },
 				);

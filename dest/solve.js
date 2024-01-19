@@ -1,7 +1,9 @@
 export function Solver(cards) {
     let cancel = false;
+    let state = 'IN PROGRESS';
     const obj = {
         cancel: () => (cancel = true),
+        state: () => state,
         promise: new Promise((res, rej) => {
             const memory = new Map();
             const flippedIndices = new Set();
@@ -55,6 +57,7 @@ export function Solver(cards) {
             }
             function flipCard() {
                 if (cancel) {
+                    state = 'FAILURE';
                     rej('canceled');
                     return;
                 }
@@ -81,8 +84,10 @@ export function Solver(cards) {
                             prevCardIndex = null;
                         }
                     }
-                    if (matchedIndices.size === cards.length)
+                    if (matchedIndices.size === cards.length) {
+                        state = 'SUCCESS';
                         res();
+                    }
                     else
                         flipCard();
                 }, { once: true });

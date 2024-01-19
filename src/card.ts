@@ -3,9 +3,11 @@ export class Card {
 	container = document.createElement('div');
 	content = document.createElement('div');
 	isFlipped = false;
+	isFlipping = false;
 	symbol = '';
 	constructor(symbol: string) {
-		this.setSymbol(symbol);
+		this.symbol = symbol;
+		this.content.setAttribute('data-symbol', symbol);
 		this.container.classList.add('card');
 		this.content.classList.add('content');
 		this.container.appendChild(this.content);
@@ -18,9 +20,5 @@ export class Card {
 				once: true,
 			});
 		});
-	}
-	setSymbol(symbol: string) {
-		this.symbol = symbol;
-		this.content.setAttribute('data-symbol', symbol);
 	}
 }

@@ -3,8 +3,10 @@ export class Card {
         this.container = document.createElement('div');
         this.content = document.createElement('div');
         this.isFlipped = false;
+        this.isFlipping = false;
         this.symbol = '';
-        this.setSymbol(symbol);
+        this.symbol = symbol;
+        this.content.setAttribute('data-symbol', symbol);
         this.container.classList.add('card');
         this.content.classList.add('content');
         this.container.appendChild(this.content);
@@ -17,10 +19,6 @@ export class Card {
                 once: true,
             });
         });
-    }
-    setSymbol(symbol) {
-        this.symbol = symbol;
-        this.content.setAttribute('data-symbol', symbol);
     }
 }
 //# sourceMappingURL=card.js.map
