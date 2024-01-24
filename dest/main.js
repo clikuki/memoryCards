@@ -51,6 +51,16 @@ function resetCards() {
     grid.replaceChildren(...cards.map((card) => card.container));
 }
 resetCards();
+function resetVariables() {
+    gameId++;
+    prevCard = null;
+    disableFlip = false;
+    solveBtn.disabled = false;
+    flipCount = 0;
+    flipCounterElem.textContent = 'Flips: 0';
+    if (solver)
+        solver.cancel();
+}
 const restartBtn = document.querySelector('.restartBtn');
 restartBtn.addEventListener('click', () => {
     let remainingCards = 0;
@@ -58,23 +68,13 @@ restartBtn.addEventListener('click', () => {
         if (card.isFlipped) {
             remainingCards++;
             card.flip().then(() => {
-                if (--remainingCards <= 0) {
+                if (--remainingCards <= 0)
                     resetCards();
-                    disableFlip = false;
-                    prevCard = null;
-                }
             });
         }
     });
-    if (remainingCards) {
-        gameId++;
-        flipCount = 0;
-        flipCounterElem.textContent = 'Flips: 0';
-        if (solver) {
-            solver.cancel();
-            solver = null;
-        }
-    }
+    if (remainingCards)
+        resetVariables();
 });
 let solver = null;
 const solveBtn = document.querySelector('.solveBtn');
@@ -86,9 +86,9 @@ solveBtn.addEventListener('click', () => {
     solveBtn.textContent = 'Solving...';
     solver = Solver(cards);
     solver.promise.finally(() => {
-        solveBtn.textContent = solver.state() === 'FAILURE' ? 'Solve' : 'Solved';
+        const text = solver.state() === 'FAILURE' ? 'Solve' : 'Solved';
+        solveBtn.textContent = text;
         solver = null;
-        solveBtn.disabled = false;
     });
 });
 const difficultyBtn = document.querySelector('.difficultyBtn');
@@ -98,13 +98,7 @@ difficultyBtn.addEventListener('click', () => {
     difficultyBtn.textContent = columnSets[columnIndex][0];
     columns = columnSets[columnIndex][1];
     resetCards();
-    gameId++;
-    prevCard = null;
-    disableFlip = false;
-    if (solver) {
-        solver.cancel();
-        solver = null;
-    }
+    resetVariables();
 });
 let flipCount = 0;
 const flipCounterElem = document.querySelector('.flipCounter');

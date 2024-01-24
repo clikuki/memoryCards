@@ -3,10 +3,13 @@ import { Card } from './card';
 // Returns an object with a promise and a method to cancel said promise
 // TODO: Fix it cause its broken somehow
 export function Solver(cards: Card[]) {
-	let cancel = false;
 	let state: 'IN PROGRESS' | 'SUCCESS' | 'FAILURE' = 'IN PROGRESS';
+	let rejected = false;
 	const obj = {
-		cancel: () => (cancel = true),
+		cancel: () => {
+			if (state !== 'IN PROGRESS') return;
+			state = 'FAILURE';
+		},
 		state: () => state,
 		promise: new Promise<void>((res, rej) => {
 			const memory = new Map<string, [number, number?]>();
@@ -53,6 +56,9 @@ export function Solver(cards: Card[]) {
 					break;
 			}
 
+			// Returns the next card index to work on
+			// If memory holds two matching cards, return that
+			// Otherwise, return random unmatched index
 			function getCardIndex() {
 				for (const [, [indexA, indexB]] of memory) {
 					if (indexB !== undefined) {
@@ -68,9 +74,11 @@ export function Solver(cards: Card[]) {
 			}
 
 			function flipCard() {
-				if (cancel) {
-					state = 'FAILURE';
-					rej('canceled');
+				if (state !== 'IN PROGRESS') {
+					if (!rejected) {
+						rejected = true;
+						rej();
+					}
 					return;
 				}
 
@@ -82,16 +90,19 @@ export function Solver(cards: Card[]) {
 					() => {
 						flippedIndices.add(index);
 
+						const syms: string[] = [card.symbol];
+						if (prevCardIndex !== null) syms.push(cards[prevCardIndex].symbol);
+						console.log(...syms);
+
 						const symbol = card.symbol;
-						if (!memory.has(symbol)) memory.set(symbol, [index]);
-						else {
-							const entry = memory.get(symbol)!;
-							if (entry.length === 1) memory.get(symbol)![1] = index;
+						if (memory.has(symbol)) {
+							// Symbol pair found
+							const mem = memory.get(symbol)!;
+							if (mem[1] === undefined) mem[1] = index;
 
 							if (prevCardIndex === null) prevCardIndex = index;
 							else {
-								// Previous card matches current
-								if (cards[prevCardIndex].symbol === card.symbol) {
+								if (cards[prevCardIndex].symbol === symbol) {
 									matchedIndices.add(prevCardIndex);
 									matchedIndices.add(index);
 									memory.delete(symbol);
@@ -99,7 +110,19 @@ export function Solver(cards: Card[]) {
 
 								prevCardIndex = null;
 							}
+						} else {
+							// Symbol not seen yet
+							memory.set(symbol, [index]);
+							if (prevCardIndex === null) prevCardIndex = index;
+							else prevCardIndex = null;
 						}
+
+						// Memory entry logging
+						// const logging: { [key: string]: [number, number?] } = {};
+						// for (const [key, tuple] of memory.entries()) {
+						// 	logging[key] = tuple;
+						// }
+						// console.table(logging);
 
 						// Have all cards been matched?
 						if (matchedIndices.size === cards.length) {

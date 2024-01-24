@@ -58,6 +58,16 @@ function resetCards() {
 }
 resetCards();
 
+function resetVariables() {
+	gameId++;
+	prevCard = null;
+	disableFlip = false;
+	solveBtn.disabled = false;
+	flipCount = 0;
+	flipCounterElem.textContent = 'Flips: 0';
+	if (solver) solver.cancel();
+}
+
 const restartBtn = document.querySelector('.restartBtn') as HTMLButtonElement;
 restartBtn.addEventListener('click', () => {
 	let remainingCards = 0;
@@ -65,25 +75,13 @@ restartBtn.addEventListener('click', () => {
 		if (card.isFlipped) {
 			remainingCards++;
 			card.flip().then(() => {
-				if (--remainingCards <= 0) {
-					resetCards();
-					disableFlip = false;
-					prevCard = null;
-				}
+				if (--remainingCards <= 0) resetCards();
 			});
 		}
 	});
 
 	// No need to do if no cards were actually flipped up
-	if (remainingCards) {
-		gameId++;
-		flipCount = 0;
-		flipCounterElem.textContent = 'Flips: 0';
-		if (solver) {
-			solver.cancel();
-			solver = null;
-		}
-	}
+	if (remainingCards) resetVariables();
 });
 
 let solver: ReturnType<typeof Solver> | null = null;
@@ -95,9 +93,9 @@ solveBtn.addEventListener('click', () => {
 	solveBtn.textContent = 'Solving...';
 	solver = Solver(cards);
 	solver.promise.finally(() => {
-		solveBtn.textContent = solver!.state() === 'FAILURE' ? 'Solve' : 'Solved';
+		const text = solver!.state() === 'FAILURE' ? 'Solve' : 'Solved';
+		solveBtn.textContent = text;
 		solver = null;
-		solveBtn.disabled = false;
 	});
 });
 
@@ -111,13 +109,7 @@ difficultyBtn.addEventListener('click', () => {
 	columns = columnSets[columnIndex][1];
 
 	resetCards();
-	gameId++;
-	prevCard = null;
-	disableFlip = false;
-	if (solver) {
-		solver.cancel();
-		solver = null;
-	}
+	resetVariables();
 });
 
 let flipCount = 0;

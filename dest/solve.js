@@ -1,8 +1,12 @@
 export function Solver(cards) {
-    let cancel = false;
     let state = 'IN PROGRESS';
+    let rejected = false;
     const obj = {
-        cancel: () => (cancel = true),
+        cancel: () => {
+            if (state !== 'IN PROGRESS')
+                return;
+            state = 'FAILURE';
+        },
         state: () => state,
         promise: new Promise((res, rej) => {
             const memory = new Map();
@@ -56,9 +60,11 @@ export function Solver(cards) {
                 return index;
             }
             function flipCard() {
-                if (cancel) {
-                    state = 'FAILURE';
-                    rej('canceled');
+                if (state !== 'IN PROGRESS') {
+                    if (!rejected) {
+                        rejected = true;
+                        rej();
+                    }
                     return;
                 }
                 const index = getCardIndex();
@@ -66,23 +72,32 @@ export function Solver(cards) {
                 card.container.click();
                 card.container.addEventListener('transitionend', () => {
                     flippedIndices.add(index);
+                    const syms = [card.symbol];
+                    if (prevCardIndex !== null)
+                        syms.push(cards[prevCardIndex].symbol);
+                    console.log(...syms);
                     const symbol = card.symbol;
-                    if (!memory.has(symbol))
-                        memory.set(symbol, [index]);
-                    else {
-                        const entry = memory.get(symbol);
-                        if (entry.length === 1)
-                            memory.get(symbol)[1] = index;
+                    if (memory.has(symbol)) {
+                        const mem = memory.get(symbol);
+                        if (mem[1] === undefined)
+                            mem[1] = index;
                         if (prevCardIndex === null)
                             prevCardIndex = index;
                         else {
-                            if (cards[prevCardIndex].symbol === card.symbol) {
+                            if (cards[prevCardIndex].symbol === symbol) {
                                 matchedIndices.add(prevCardIndex);
                                 matchedIndices.add(index);
                                 memory.delete(symbol);
                             }
                             prevCardIndex = null;
                         }
+                    }
+                    else {
+                        memory.set(symbol, [index]);
+                        if (prevCardIndex === null)
+                            prevCardIndex = index;
+                        else
+                            prevCardIndex = null;
                     }
                     if (matchedIndices.size === cards.length) {
                         state = 'SUCCESS';
